@@ -101,7 +101,7 @@ We provide the best-performing checkpoint of ESNet, corresponding to the **Accur
 
 The Fast, Balanced, and Accurate inference modes are derived from the same trained model by enabling or disabling the PRN and Gate modules during inference or ONNX export.
 
-The pretrained checkpoint can be downloaded from: 
+The pretrained checkpoint can be downloaded from: sha256:68da797d9b6f814b7b134f42d0456d3f1469c5e26ef46bbe4ea20f38ada21b9f
 
 After downloading the checkpoint, place it under:
 
