@@ -1,0 +1,31 @@
+# Core dependencies
+
+torch>=1.9.0
+torchvision>=0.10.0
+numpy>=1.19.0
+Pillow>=8.0.0
+
+# Data processing
+
+opencv-python>=4.5.0
+scipy>=1.7.0
+
+# Configuration
+
+PyYAML>=5.4.0
+
+# Visualization and logging
+
+matplotlib>=3.3.0
+tensorboard>=2.6.0
+tqdm>=4.62.0
+colorama>=0.4.4
+
+# Model export and profiling
+
+onnx>=1.12.0
+thop>=0.1.1
+
+# Testing
+
+pytest>=6.2.0

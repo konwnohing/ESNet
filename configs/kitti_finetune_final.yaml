@@ -1,0 +1,43 @@
+data:
+  dataset: "kitti"
+  root_dir: "/root/autodl-tmp/kitti_dataset"
+  kitti_year: 2015
+  crop_height: 384
+  crop_width: 768  
+  mean: [0.485, 0.456, 0.406]
+  std:  [0.229, 0.224, 0.225]
+  augmentation:
+    enabled: true
+    color_aug: true
+
+model:
+  max_disp: 192
+
+training:
+  # 火力全开：500轮，彻底压榨特征提取潜力
+  num_epochs: 500  
+  batch_size: 4
+  num_workers: 4
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  optimizer: "adam"
+  scheduler: "cosine"
+  
+  loss_weights:
+    final: 1.0
+    full_res: 0.8
+    p3: 0.5
+    disp_coarse: 0.2
+
+  loss:
+    smoothness:
+      weight: 0.1
+    edge_alpha: 15.0
+    ohem_fraction: 0.3        # 开启困难样本挖掘
+    relative_loss_weight: 2.0 # 开启远景逆深度加权
+
+logging:
+  checkpoint_dir: "./checkpoints_ultimate"
+  tensorboard_dir: "./tensorboard_ultimate"
+  save_freq: 50
+  val_freq: 10

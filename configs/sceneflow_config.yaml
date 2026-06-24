@@ -1,0 +1,100 @@
+# =============== SceneFlow 从头预训练配置 (适配 Gate Refinement 架构) ===============
+
+debug:
+  enable_debug_mode: false        
+  print_gradients: false          
+  print_disparity_stats: false
+
+model:
+  backbone_type: "resnet18"
+  max_disp: 192                   
+  negative_penalty:
+    enabled: false                
+
+data:
+  dataset: "sceneflow"
+  root_dir: "/root/autodl-tmp/project/stereo-matching/SceneFlowData" 
+  crop_height: 320
+  crop_width: 768
+  mean: [0.485, 0.456, 0.406]
+  std:  [0.229, 0.224, 0.225]
+
+  augmentation:
+    enabled: true
+    color_aug: true               
+    geometric_aug: false          
+    crop_scale: [1.0, 1.0]        
+    hflip_prob: 0.0               
+
+training:
+  overfit: false                  
+  batch_size: 6                   # 🌟 新架构省显存，Batch Size 放心开到 8
+  num_workers: 8                  
+  
+  num_epochs: 20                 # 🌟 预训练先跑 20 轮打底
+  learning_rate: 0.0004           # 🌟 预训练起步动力必须足：4e-4
+  weight_decay: 0.0001            
+  
+  optimizer: "adamw"              
+  scheduler: "cosine"             
+  gradient_clip_norm: 1.0         
+
+  # 匹配 ProgressiveRefinement 的输出尺度
+  loss_weights:
+    final: 1.0
+    full_res: 0.5
+    p1: 0.5
+    p2: 0.5
+    p3: 0.5
+    disp_coarse: 0.2              # 🌟 给 GRU 第一刀稍微一点点监督
+
+  loss:
+    type: "multilevel"
+    
+    # 🌟🌟 核心：开启置信度感知门控损失 🌟🌟
+    gate_refinement:
+      enabled: true
+      weight: 1.0
+      alpha: 1.0
+      
+    # 高级挖掘与加权策略
+    edge_alpha: 1.0              # 边缘切割锐度
+    relative_loss_weight: 0.0     # 指数深度加权
+    ohem_fraction: 1         # 困难样本挖掘比例 (专攻最难的 30% 像素)
+    
+    negative_penalty:
+      enabled: false              # 预训练阶段关闭
+      
+    smoothness:
+      enabled: true
+      weight: 0.1                 
+      edge_aware: true
+      
+    spatial_grad:
+      enabled: false             
+      weight: 0.1
+      
+    ssim:
+      enabled: false
+    physics_constraint:
+      enabled: false
+
+logging:
+  log_dir: "./logs_sceneflow_pretrain"
+  checkpoint_dir: "./checkpoints_sceneflow_pretrain_1" 
+  tensorboard_dir: "./tensorboard_sceneflow_pretrain_1"
+  save_freq: 1                    
+  val_freq: 1                     
+  visualization:
+    enabled: true                 
+    save_disparity_maps: true
+    save_negative_masks: false
+    frequency: 500                
+
+evaluation:
+  metrics: ["epe", "bad_3.0", "bad_1.0", "d1_all"]
+  max_disp: 192
+  validation:
+    compute_3px_error: true       
+    compute_1px_error: true
+    compute_negative_stats: false

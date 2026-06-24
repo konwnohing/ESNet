@@ -1,0 +1,61 @@
+# =============== KITTI 2012+2015 终极融合打榜配置 (全量轰炸版) ===============
+
+model:
+  backbone_type: "resnet18"
+  max_disp: 192                   
+
+data:
+  dataset: "kitti" 
+  root_dir: "/root/autodl-tmp/kitti_mix"  # 🌟 必须指向内存盘里的 400 张融合数据
+  split: "train_all"
+  year: 2015                 
+  crop_height: 384
+  crop_width: 1152                # 🌟 保持极限视野
+  mean: [0.485, 0.456, 0.406]
+  std:  [0.229, 0.224, 0.225]
+  augmentation:
+    enabled: true
+    color_aug: true               
+
+training:
+  num_epochs: 300                 # 🌟 加了 2012，数据翻倍，跑 300 轮让它吃透
+  batch_size: 4                   # 如果显存报警，就改回 2
+  num_workers: 8                  
+  learning_rate: 0.00002          
+  weight_decay: 0.0001            
+  optimizer: "adam"              
+  scheduler: "cosine"             
+  
+  loss_weights:
+    final: 1.0
+    full_res: 0.8
+    p3: 0.5
+    disp_coarse: 0.2              
+
+  loss:
+    type: "multilevel"
+    gate_refinement:
+      enabled: true
+      weight: 1.0
+      alpha: 1.0
+    edge_alpha: 15.0              
+    relative_loss_weight: 2.0     
+    ohem_fraction: 0.3            
+    smoothness:
+      enabled: true
+      weight: 0.1                 
+      edge_aware: true
+    spatial_grad:
+      enabled: true               # 🌟 空间梯度铁锤，专治边缘模糊
+      weight: 0.1                 
+
+logging:
+  log_dir: "./logs_submit"
+  checkpoint_dir: "./checkpoints_submitlast" 
+  tensorboard_dir: "./tensorboard_submitlast"
+  save_freq: 50                    
+  val_freq: 9999                  # 🌟 彻底关闭验证，全力训练，不浪费一秒钟
+
+evaluation:
+  metrics: ["epe", "d1_all"]
+  max_disp: 192

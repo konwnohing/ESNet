@@ -1,0 +1,45 @@
+# ==========================================
+# KITTI Boundary Region Analysis - Six Models
+# ==========================================
+
+data:
+  dataset: 'kitti2015'
+  root_dir: '/root/autodl-tmp/kitti_dataset'
+  split_file: '/root/autodl-tmp/project/stereo-matching/splits/kitti_debug_1.txt'
+
+  # 如果你有验证集划分 txt，就填路径
+  # 每行可以是 000000_10.png 或 000000
+  
+
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
+
+model:
+  backbone_type: 'resnet18'
+  max_disp: 192
+
+evaluation:
+  save_dir: '/root/autodl-tmp/project/stereo-matching/results/boundary_analysis_six'
+  save_csv: true
+  save_edge_visualization: true
+
+  # 边界 mask 设置
+  # edge_percentile=85 表示取 Sobel 强度最高的 15% 作为边缘
+  edge_percentile: 85
+  dilation_radius: 3
+
+  # 是否保存前几张边缘可视化图
+  max_save_vis: 5
+
+  models:
+    # =============================
+    # A. 结构模块对比：同 Smooth L1
+    # =============================
+
+    - name: 'Baseline_SmoothL1'
+      group: 'architecture'
+      checkpoint_path: '/root/autodl-tmp/project/stereo-matching/checkpoints_modelbaseline/model_best.pth'
+      use_prn: false
+      use_gate: false
+      loss_type: 'Smooth L1'
+      strict_load: false

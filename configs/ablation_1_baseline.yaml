@@ -1,0 +1,20 @@
+data:
+  dataset: "kitti"
+  root_dir: "/root/autodl-tmp/kitti_dataset"
+  crop_height: 256
+  crop_width: 512
+model:
+  max_disp: 192
+training:
+  num_epochs: 100
+  batch_size: 4
+  learning_rate: 0.0001
+  loss:
+    smoothness:
+      weight: 0.0      # 关闭平滑
+    edge_alpha: 0.0    # 关闭边缘感知
+    ohem_fraction: 1.0 # 1.0代表不丢弃，全部使用 (关闭困难挖掘)
+    relative_loss_weight: 0.0 # 关闭指数逆深度EDW
+logging:
+  checkpoint_dir: "./checkpoints_ablation_1"
+  tensorboard_dir: "./tensorboard_ablation_1"

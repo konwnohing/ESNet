@@ -1,0 +1,65 @@
+# =============== KITTI 2015 专属热身微调 (等待 2012 下载时使用) ===============
+
+debug:
+  enable_debug_mode: false        
+
+model:
+  backbone_type: "resnet18"
+  max_disp: 192                   
+
+data:
+  dataset: "kitti"
+  root_dir: "/dev/shm/kitti_dataset"  # 🌟 使用你手里现有的 2015 数据
+  crop_height: 384
+  crop_width: 1152  
+  mean: [0.485, 0.456, 0.406]
+  std:  [0.229, 0.224, 0.225]
+  augmentation:
+    enabled: true
+    color_aug: true               
+
+training:
+  num_epochs: 200                 # 🌟 先跑 200 轮热身，刚好填补下载的时间
+  batch_size: 4
+  num_workers: 8                  
+  learning_rate: 0.0001           # 🌟 微调学习率 1e-4
+  weight_decay: 0.0001            
+  optimizer: "adam"              
+  scheduler: "cosine"             
+  
+  loss_weights:
+    final: 1.0
+    full_res: 0.8
+    p3: 0.5
+    disp_coarse: 0.2              
+
+  loss:
+    type: "multilevel"
+    gate_refinement:
+      enabled: true
+      weight: 1.0
+      alpha: 1.0
+      
+    edge_alpha: 15.0              
+    relative_loss_weight: 2.0     
+    ohem_fraction: 0.3            
+    
+    smoothness:
+      enabled: true
+      weight: 0.1                 
+      edge_aware: true
+      
+    spatial_grad:
+      enabled: true               # 🌟 大铁锤已开启！
+      weight: 0.1                 
+
+logging:
+  log_dir: "./logs_warmup"
+  checkpoint_dir: "./checkpoints_warmup" 
+  tensorboard_dir: "./tensorboard_warmup"
+  save_freq: 20                    
+  val_freq: 9999                  # 🌟 不做验证！拿全部 200 张图直接训练！
+
+evaluation:
+  metrics: ["epe", "bad_3.0", "bad_1.0", "d1_all"]
+  max_disp: 192

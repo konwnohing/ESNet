@@ -1,0 +1,32 @@
+# configs/kitti_zeroshot.yaml
+# =============== KITTI Zero-shot 零样本测试配置 ===============
+
+model:
+  backbone_type: "resnet18"
+  max_disp: 192                   
+
+data:
+  dataset: "kitti"  
+  root_dir: "/root/autodl-tmp/kitti_dataset" 
+  kitti_year: 2015
+  # KITTI 原图大概是 376x1242，pad 到 32 的整数倍
+  crop_height: 384
+  crop_width: 1248
+  mean: [0.485, 0.456, 0.406]
+  std:  [0.229, 0.224, 0.225]
+  augmentation:
+    enabled: false # Zero-shot 纯测试，绝对不能开增强
+
+training:
+  num_epochs: 0      # 🌟 灵魂参数：0轮代表绝对不训练，只走验证代码！
+  batch_size: 1                   
+  num_workers: 4                  
+  loss:
+    type: "multilevel" 
+
+evaluation:
+  metrics: ["epe", "bad_3.0", "bad_1.0", "d1_all"] # 🌟 加上 d1_all
+  max_disp: 192
+  validation:
+    compute_3px_error: true       
+    compute_1px_error: true

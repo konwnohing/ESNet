@@ -1,0 +1,38 @@
+# ==========================================
+# ETH3D Zero-shot 评估与推理配置文件
+# ==========================================
+
+data:
+  dataset: 'eth3d'
+  root_dir: '/root/autodl-tmp/project/stereo-matching/ETH3D'
+
+  # 默认不 resize，只用原图 + padding
+  # 如果你想强制评估 256×512，就改成 true
+  resize_to_config: false
+  crop_height: 256
+  crop_width: 512
+
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
+
+model:
+  name: 'ESNet_RCM'
+  backbone_type: 'resnet18'
+  max_disp: 192
+
+  # 明确写出来，避免以后靠默认值猜
+  use_prn: true
+  use_gate: true
+
+evaluation:
+  checkpoint_path: '/root/autodl-tmp/project/stereo-matching/checkpoints_sceneflow_pretrain_1/model_best.pth'
+
+  save_results: true
+  save_dir: '/root/autodl-tmp/project/stereo-matching/results/eth3d_zeroshot_debug'
+
+  save_color_map: true
+  save_gt_color_map: true
+  save_metrics_log: true
+
+  # 打印每张图的 GT / Pred 范围
+  debug: true

@@ -1,0 +1,58 @@
+# ==========================================
+# KITTI Depth / Ranging Analysis
+# ==========================================
+
+data:
+  dataset: 'kitti2015'
+  root_dir: '/root/autodl-tmp/kitti_dataset'
+
+  # 先可以用 1 张图 debug，确认没问题后改成空字符串跑 200 张
+  #split_file: '/root/autodl-tmp/project/stereo-matching/splits/kitti_debug_1.txt'
+  split_file: ''
+
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
+
+model:
+  backbone_type: 'resnet18'
+  max_disp: 192
+
+calibration:
+  # 优先从 KITTI calib 文件读取 f 和 baseline
+  use_kitti_calib: true
+
+  # 如果你的数据集中没有 calib 文件，可以手动填写下面两个值
+  # 没有 calib 时不要乱填，先发我路径结构我帮你判断
+  fallback_focal_length_px: null
+  fallback_baseline_m: null
+
+evaluation:
+  save_dir: '/root/autodl-tmp/project/stereo-matching/results/depth_analysis'
+  save_csv: true
+
+  min_disp: 0.1
+  max_depth_m: 80.0
+
+  # Bad-depth 定义：深度误差 > 1m 且相对误差 > 5%
+  bad_depth_abs_threshold_m: 1.0
+  bad_depth_rel_threshold: 0.05
+
+  # 距离分段，可按论文需要调整
+  depth_ranges:
+    - name: 'Near'
+      min_m: 0.0
+      max_m: 20.0
+    - name: 'Middle'
+      min_m: 20.0
+      max_m: 40.0
+    - name: 'Far'
+      min_m: 40.0
+      max_m: 80.0
+
+  models:
+    - name: 'Full_OHEM_SpatialEdge'
+      checkpoint_path: '/root/autodl-tmp/project/stereo-matching/checkpoints_ohem+spatial/model_best.pth'
+      use_prn: true
+      use_gate: true
+      strict_load: true
+      

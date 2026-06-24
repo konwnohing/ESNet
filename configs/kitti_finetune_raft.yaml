@@ -1,0 +1,59 @@
+# configs/kitti_finetune_raft.yaml
+name: "kitti_edge_optimized_hardcore"
+
+data:
+  dataset: "kitti"
+  root_dir: "/root/autodl-tmp/kitti_dataset" 
+  kitti_year: 2015
+  # 🌟 必须升级：大视野才能带来高精度
+  crop_height: 384
+  crop_width: 768
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
+  augmentation:
+    enabled: true
+    color_aug: true
+    vflip_prob: 0.5
+    asymmetric_color_prob: 0.4
+
+model:
+  name: "EnhancedStereoNet"    
+  max_disp: 192
+
+training:
+  # 🌟 必须升级：炼丹火候要足
+  num_epochs: 500              
+  batch_size: 4
+  num_workers: 4
+  learning_rate: 0.0001
+  weight_decay: 0.001          
+  optimizer: "adam"
+  scheduler: "cosine"          
+  
+  loss_weights:
+    final: 1.0
+    full_res: 0.8
+    p3: 0.5
+    disp_coarse: 0.2
+  
+  loss:
+    physics_constraint:
+      enabled: true
+      weight: 0.1
+    smoothness:
+      weight: 0.05
+    spatial_grad:
+      weight: 0.5             
+    negative_penalty:
+      weight: 0.1
+
+logging:
+  # 🌟 文件夹名改一下，防止覆盖你之前的 160 权重
+  checkpoint_dir: "./checkpoints_submission_full_200"
+  tensorboard_dir: "./tensorboard_submission_full_200"
+  save_freq: 50
+  # 🌟 关键：因为我们要全量训练，没有验证集了，设个大数防止报错
+  val_freq: 9999
+
+debug:
+  enable_debug_mode: false
